@@ -1,0 +1,104 @@
+version: "3.7"
+services:
+  tarefa1_8080:
+    image: tarefa1
+    container_name: tarefa1_8080
+    build: ./
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.11
+    environment: 
+      - SERVER_PORT=8080
+      - APP_NAME=app0(8080)
+
+  tarefa1_8081:
+    image: tarefa1
+    container_name: tarefa1_8081
+    build: .
+    restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.12
+    environment:
+      - SERVER_PORT=8081
+      - APP_NAME=app1(8081)
+
+  tarefa1_8082:
+    image: tarefa1
+    container_name: tarefa1_8082
+    build: .
+    restart: always
+    ports:
+      - "8082:8082"
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.13
+    environment:
+      - SERVER_PORT=8082
+      - APP_NAME=app2(8082)
+
+
+  management1:
+    image: container-registry.oracle.com/mysql/community-cluster
+    container_name: management1
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.2
+    command: ndb_mgmd
+  mysqlNode1:
+    image: container-registry.oracle.com/mysql/community-cluster
+    container_name: mysqlNode1
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.3
+    command: ndbd
+  mysqlNode2:
+    image: container-registry.oracle.com/mysql/community-cluster
+    container_name: mysqlNode2
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.4
+    command: ndbd
+  mysqlServer:
+    image: container-registry.oracle.com/mysql/community-cluster
+    container_name: mysqlServer
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.10
+    command: mysqld
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: tim
+      MYSQL_PASSWORD: tim
+
+  #docker logs mysqlServer 2>&1 | grep PASSWORD
+  #docker exec -it mysqlServer mysql -uroot -p
+
+  #CREATE USER 'tim'@'%' IDENTIFIED BY 'tim';
+  #GRANT ALL PRIVILEGES ON *.* TO 'tim'@'%';
+  #FLUSH PRIVILEGES;
+  webserver:
+    image: "nginx"
+    container_name: container-nginx-tarefa1
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    command: [nginx-debug, '-g', 'daemon off;']
+    networks:
+      tarefa1network:
+        ipv4_address: 192.168.0.14
+    depends_on:
+      - "tarefa1_8080"
+      - "tarefa1_8081"
+      - "tarefa1_8082"
+networks:
+  tarefa1network:
+    external: true

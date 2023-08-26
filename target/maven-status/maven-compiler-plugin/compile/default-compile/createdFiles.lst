@@ -1,0 +1,5 @@
+com/br/faccat/sistdist/LivroRepository.class
+com/br/faccat/sistdist/controller/LivroController.class
+com/br/faccat/sistdist/model/Livro.class
+com/br/faccat/sistdist/controller/TesteController.class
+com/br/faccat/sistdist/Tarefa1Application.class
